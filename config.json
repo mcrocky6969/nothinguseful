@@ -1,0 +1,80 @@
+{
+  "window_title": "MapleStory",
+  "current_map": "000000050",
+  "name_threshold": 0.8,
+  "name_offset_y": -35,
+  "attack_reach": 110,
+  "attack_height": 53,
+  "skill_enabled": false,
+  "skill_reach": 290,
+  "det_extra_w": 698,
+  "det_extra_h": 67,
+  "keys": {
+    "left": "left",
+    "right": "right",
+    "attack": "ctrl",
+    "skill": "shift",
+    "hp": "pageup",
+    "mp": "pagedown",
+    "jump": "alt",
+    "up": "up",
+    "down": "down"
+  },
+  "hp_pct": 0,
+  "mp_pct": 0,
+  "hp_roi": [
+    502,
+    750,
+    609,
+    766
+  ],
+  "mp_roi": [
+    610,
+    750,
+    717,
+    766
+  ],
+  "part_match": true,
+  "mm_roi": [
+    4,
+    70,
+    251,
+    151
+  ],
+  "hunt": {
+    "000000050": [
+      265,
+      195,
+      3219,
+      331
+    ]
+  },
+  "walk_speed": 100,
+  "jump_h": 65,
+  "jump_dx": 110,
+  "mob_flip": true,
+  "sprite_scale": 1.0,
+  "track_ttl": 0.3,
+  "monsters": {
+    "tutorialjrsentinel": {
+      "on": true,
+      "thr": 0.8
+    },
+    "snail": {
+      "on": true,
+      "thr": 0.6
+    },
+    "bluesnail": {
+      "on": true,
+      "thr": 0.8
+    },
+    "shroom": {
+      "on": true,
+      "thr": 0.8
+    },
+    "redsnail": {
+      "on": true,
+      "thr": 0.8
+    }
+  }
+}

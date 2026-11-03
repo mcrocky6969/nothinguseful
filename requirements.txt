@@ -1,0 +1,6 @@
+PySide6
+opencv-python
+numpy
+mss
+pywin32
+pydirectinput

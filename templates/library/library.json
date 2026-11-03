@@ -1,0 +1,318 @@
+{
+ "tutorialjrsentinel": {
+  "id": 1,
+  "name": "Tutorial Jr. Sentinel"
+ },
+ "snail": {
+  "id": 2,
+  "name": "Snail"
+ },
+ "bluesnail": {
+  "id": 3,
+  "name": "Blue Snail"
+ },
+ "shroom": {
+  "id": 4,
+  "name": "Shroom"
+ },
+ "redsnail": {
+  "id": 5,
+  "name": "Red Snail"
+ },
+ "stump": {
+  "id": 6,
+  "name": "Stump"
+ },
+ "slime": {
+  "id": 7,
+  "name": "Slime"
+ },
+ "pig": {
+  "id": 8,
+  "name": "Pig"
+ },
+ "orangemushroom": {
+  "id": 9,
+  "name": "Orange Mushroom"
+ },
+ "ribbonpig": {
+  "id": 10,
+  "name": "Ribbon Pig"
+ },
+ "darkstump": {
+  "id": 11,
+  "name": "Dark Stump"
+ },
+ "octopus": {
+  "id": 12,
+  "name": "Octopus"
+ },
+ "greenmushroom": {
+  "id": 13,
+  "name": "Green Mushroom"
+ },
+ "bubbling": {
+  "id": 14,
+  "name": "Bubbling"
+ },
+ "axestump": {
+  "id": 15,
+  "name": "Axe Stump"
+ },
+ "bluemushroom": {
+  "id": 16,
+  "name": "Blue Mushroom"
+ },
+ "stirge": {
+  "id": 17,
+  "name": "Stirge"
+ },
+ "jrnecki": {
+  "id": 18,
+  "name": "Jr. Necki"
+ },
+ "hornymushroom": {
+  "id": 19,
+  "name": "Horny Mushroom"
+ },
+ "darkaxestump": {
+  "id": 20,
+  "name": "Dark Axe Stump"
+ },
+ "zombiemushroom": {
+  "id": 21,
+  "name": "Zombie Mushroom"
+ },
+ "wildboar": {
+  "id": 22,
+  "name": "Wild Boar"
+ },
+ "evileye": {
+  "id": 23,
+  "name": "Evil Eye"
+ },
+ "ironhog": {
+  "id": 24,
+  "name": "Iron Hog"
+ },
+ "fairy1": {
+  "id": 25,
+  "name": "Fairy 1"
+ },
+ "ligator": {
+  "id": 29,
+  "name": "Ligator"
+ },
+ "fireboar": {
+  "id": 30,
+  "name": "Fire Boar"
+ },
+ "curseeye": {
+  "id": 31,
+  "name": "Curse Eye"
+ },
+ "jrwraith": {
+  "id": 32,
+  "name": "Jr. Wraith"
+ },
+ "jrboogie1": {
+  "id": 33,
+  "name": "Jr. Boogie 1"
+ },
+ "lupin": {
+  "id": 35,
+  "name": "Lupin"
+ },
+ "lorang": {
+  "id": 36,
+  "name": "Lorang"
+ },
+ "coldeye": {
+  "id": 37,
+  "name": "Cold Eye"
+ },
+ "zombielupin": {
+  "id": 38,
+  "name": "Zombie Lupin"
+ },
+ "ghoststump": {
+  "id": 39,
+  "name": "Ghost Stump"
+ },
+ "copperdrake": {
+  "id": 40,
+  "name": "Copper Drake"
+ },
+ "tortie": {
+  "id": 41,
+  "name": "Tortie"
+ },
+ "woodenmask": {
+  "id": 42,
+  "name": "Wooden Mask"
+ },
+ "wraith": {
+  "id": 43,
+  "name": "Wraith"
+ },
+ "clang": {
+  "id": 44,
+  "name": "Clang"
+ },
+ "drake": {
+  "id": 45,
+  "name": "Drake"
+ },
+ "croco": {
+  "id": 46,
+  "name": "Croco"
+ },
+ "malady": {
+  "id": 47,
+  "name": "Malady"
+ },
+ "stonegolem": {
+  "id": 48,
+  "name": "Stone Golem"
+ },
+ "darkstonegolem": {
+  "id": 49,
+  "name": "Dark Stone Golem"
+ },
+ "reddrake": {
+  "id": 50,
+  "name": "Red Drake"
+ },
+ "wildkargo": {
+  "id": 51,
+  "name": "Wild Kargo"
+ },
+ "tauromacis": {
+  "id": 52,
+  "name": "Tauromacis"
+ },
+ "taurospear": {
+  "id": 53,
+  "name": "Taurospear"
+ },
+ "glowshroom": {
+  "id": 54,
+  "name": "Glowshroom"
+ },
+ "raffle": {
+  "id": 55,
+  "name": "Raffle"
+ },
+ "goldenstirge": {
+  "id": 56,
+  "name": "Golden Stirge"
+ },
+ "aqumander": {
+  "id": 57,
+  "name": "Aqumander"
+ },
+ "echopus": {
+  "id": 58,
+  "name": "Echopus"
+ },
+ "rafflesia": {
+  "id": 59,
+  "name": "Rafflesia"
+ },
+ "duskmander": {
+  "id": 60,
+  "name": "Duskmander"
+ },
+ "myewood": {
+  "id": 61,
+  "name": "Myewood"
+ },
+ "rottenmushroom": {
+  "id": 62,
+  "name": "Rotten Mushroom"
+ },
+ "sporewood": {
+  "id": 63,
+  "name": "Sporewood"
+ },
+ "rockymask": {
+  "id": 64,
+  "name": "Rocky Mask"
+ },
+ "skeledog": {
+  "id": 65,
+  "name": "Skeledog"
+ },
+ "mummydog": {
+  "id": 66,
+  "name": "Mummydog"
+ },
+ "skeletonsoldier": {
+  "id": 67,
+  "name": "Skeleton Soldier"
+ },
+ "officerskeleton": {
+  "id": 68,
+  "name": "Officer Skeleton"
+ },
+ "commanderskeleton": {
+  "id": 69,
+  "name": "Commander Skeleton"
+ },
+ "flyeye": {
+  "id": 1032,
+  "name": "Flyeye"
+ },
+ "mushmom": {
+  "id": 700000,
+  "name": "Mushmom"
+ },
+ "jrbalrog": {
+  "id": 700001,
+  "name": "Jr. Balrog"
+ },
+ "zombiemushmom": {
+  "id": 700002,
+  "name": "Zombie Mushmom"
+ },
+ "rottenmushmom": {
+  "id": 700003,
+  "name": "Rotten Mushmom"
+ },
+ "mano": {
+  "id": 700004,
+  "name": "Mano"
+ },
+ "crimsonbalrog": {
+  "id": 700005,
+  "name": "Crimson Balrog"
+ },
+ "shade": {
+  "id": 700006,
+  "name": "Shade"
+ },
+ "stumpy": {
+  "id": 700007,
+  "name": "Stumpy"
+ },
+ "faust": {
+  "id": 700008,
+  "name": "Faust"
+ },
+ "kingslime": {
+  "id": 800003,
+  "name": "King Slime"
+ },
+ "goblinfire": {
+  "id": 800024,
+  "name": "Goblin Fire"
+ },
+ "orangeslime": {
+  "id": 900000,
+  "name": "Orange Slime"
+ },
+ "strawtraningdummy": {
+  "id": 910000,
+  "name": "Straw Traning Dummy"
+ }
+}
