@@ -18,6 +18,7 @@ class Navigator:
         self.pt_x, self.pause_until, self.wander_until, self.wander_dir = None, 0, 0, 1
         self._last_pid, self._last_log = None, {}
         self.pen = {}
+        self._sx, self._st = None, 0
         self.phase, self.attempt, self.stepped, self.y0 = 0, 0, False, 0
 
     # ---------------------------------------------------------------- map / position
@@ -51,10 +52,10 @@ class Navigator:
             if self.x is None or abs(wx - self.x) > 48:
                 self.x, self.y = wx, wy
             else:
-                self.x, self.y = 0.75 * self.x + 0.25 * wx, 0.6 * self.y + 0.4 * wy
+                self.x, self.y = 0.75 * self.x + 0.25 * wx, wy        # y comes straight from the (feet-corrected) dot
         if self.x is None:
             return
-        self.cur = self.nm.locate(self.x, self.y)
+        self.cur = self.nm.locate(self.x, self.y, 30)
         if self.leg and self.leg["kind"] == "climb" and self.phase >= 1 and not self.stepped:
             self.cur = None                                   # minimap is too coarse to tell 'on rope near the top' from 'on the platform'
         pid = self.cur.id if self.cur else None
@@ -79,6 +80,17 @@ class Navigator:
         p = self.cur
         return p is not None and ((d > 0 and self.x >= p.x1 - 6) or (d < 0 and self.x <= p.x0 + 6))
 
+    def stuck(self, moving, now):
+        """True when we keep walking but the minimap dot does not move (wall, edge, bad position)."""
+        raw = self.dot[0] if self.dot else None
+        if raw is None or not moving or self._sx is None or abs(raw - self._sx) > 24:
+            self._sx, self._st = raw, now
+            return False
+        if now - self._st > 2.5:
+            self._sx, self._st = raw, now
+            return True
+        return False
+
     def world_x_of(self, screen_dx):
         return None if self.x is None else self.x + screen_dx
 
@@ -97,6 +109,8 @@ class Navigator:
         if not self.ready():
             return None
         if now < self.wander_until:
+            if self.blocked(self.wander_dir):
+                self.wander_dir = -self.wander_dir
             return {"move": self.wander_dir}
         if self.leg:
             r = self._run_leg(now)
@@ -109,6 +123,7 @@ class Navigator:
                 up = z is not None and (z[1] + z[3]) / 2 < self.y
                 self.status = "on rope"
                 return {"up": up, "down": not up}
+            self.status = "in the air / position unknown"
             return {"move": 0}
         if self.zone() and not self.in_zone():
             return self._plan(now)

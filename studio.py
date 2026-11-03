@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (QWidget, QDialog, QLabel, QPushButton, QHBoxLayou
 import shutil
 from PySide6.QtWidgets import QFileDialog, QInputDialog, QComboBox, QCompleter
 import json
+import minimap
 from config import MOB_DIR, TPL_DIR, WZ_DIR, LIB_DIR
 from wz_import import import_sprites
 
@@ -134,18 +135,18 @@ class Snapshot(QDialog):
 
 # ---------------------------------------------------------------- studio window
 class Studio(QWidget):
-    def __init__(self, cfg, worker, analyzer):
+    def __init__(self, cfg, worker, analyzer, nav=None):
         super().__init__()
         self.setWindowTitle("Pixel Studio")
-        self.cfg, self.worker, self.an = cfg, worker, analyzer
+        self.cfg, self.worker, self.an, self.nav = cfg, worker, analyzer, nav
         self.view = QLabel(); self.view.setAlignment(Qt.AlignCenter); self.view.setStyleSheet("background:#000")
         self.view.setMinimumSize(640, 420); self.view.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self.status = QLabel("")
 
         grid = QGridLayout()
         for i, (txt, mode) in enumerate([("Name Tracking", "name"), ("Capture Img (mob)", "mob"), ("Measure Tool", "measure"),
-                                         ("Vitals: HP bar", "hp"), ("Vitals: MP bar", "mp"), ("Minimap box", "mm"), ("Import wz sprites", "import"), ("Save config", None)]):
-            b = QPushButton(txt); b.clicked.connect(lambda _=False, m=mode: self.import_wz() if m == "import" else (self.open_snap(m) if m else self.save_cfg()))
+                                         ("Vitals: HP bar", "hp"), ("Vitals: MP bar", "mp"), ("Minimap box", "mm"), ("Re-align minimap", "align"), ("Import wz sprites", "import"), ("Save config", None)]):
+            b = QPushButton(txt); b.clicked.connect(lambda _=False, m=mode: self.import_wz() if m == "import" else (self.realign() if m == "align" else (self.open_snap(m) if m else self.save_cfg())))
             grid.addWidget(b, i // 2, i % 2)
 
         tabs = QTabWidget()
@@ -278,6 +279,33 @@ class Studio(QWidget):
         self.cfg.monsters.pop(name, None); self.an.load_templates(); self.refresh_mobs(); self.cfg.save()
         self.status.setText(f"Imported '{name}': {counts or 'NOTHING FOUND'}" + (f"  ({no_alpha} PNGs had no alpha, skipped)" if no_alpha else ""))
 
+    def realign(self):
+        self.an.realign()
+        self.status.setText("Re-aligning the minimap picture to the map data ...")
+
+    def _explore(self, img, frame):
+        """Draw the zoomed 'exploration map' (minimap picture + platforms/ropes/route/zone) into the top-right of the live view."""
+        c, nav, H, W = self.cfg, self.nav, img.shape[0], img.shape[1]
+        m = self.an.mapdb().get(c.current_map)
+        if nav is None or not (c.mm_roi and m and (m.get("minimap") or {}).get("mag") is not None):
+            msg = "EXPLORATION MAP: pick the map + draw the Minimap box"
+            cv2.rectangle(img, (W - 330, 4), (W - 4, 26), (40, 40, 40), -1)
+            cv2.putText(img, msg, (W - 324, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 200, 255), 1)
+            return
+        nav.sync()
+        x1, y1, x2, y2 = c.mm_roi
+        crop = frame[y1:y2, x1:x2]
+        if nav.nm is None or crop.size == 0:
+            return
+        zoom = int(np.clip(round(W * 0.48 / max(1, crop.shape[1])), 1, 4))
+        legs = ([nav.leg] if nav.leg else []) + list(nav.legs)
+        ex = minimap.render_explore(crop, m, nav.nm, self.an.mm_off, zoom, est=(nav.x, nav.y) if nav.x is not None else None,
+                                    zone=nav.zone(), legs=legs, cur_pid=nav.cur.id if nav.cur else None, aligned=self.an.mm_conf >= 0.25)
+        h, w = ex.shape[:2]
+        if h < H - 8 and w < W - 8:
+            img[4:4 + h, W - w - 4:W - 4] = ex
+            cv2.rectangle(img, (W - w - 4, 4), (W - 4, 4 + h), (200, 200, 200), 1)
+
     def save_cfg(self):
         self.cfg.save(); self.status.setText("Config saved.")
 
@@ -347,9 +375,12 @@ class Studio(QWidget):
             r = c.mm_roi; cv2.rectangle(img, (r[0], r[1]), (r[2], r[3]), (255, 0, 255), 1)
             if a.get("mm"):
                 cv2.circle(img, (int(a["mm"][2]), int(a["mm"][3])), 5, (0, 255, 255), 1)
+        self._explore(img, frame)
         f = lambda v: "-" if v is None else f"{v*100:.0f}%"
         self.vit_lbl.setText(f"HP: {f(a['hp'])}   MP: {f(a['mp'])}   name score {a['name_score']:.2f}")
-        self.status.setText(f"vision {self.worker.fps:.0f} fps")
+        mmtxt = "" if not c.mm_roi else (f"   |   minimap: {'aligned %.2f' % self.an.mm_conf if self.an.mm_conf >= 0.25 else 'NOT aligned (%.2f)' % self.an.mm_conf}, "
+                                        f"dot {'found' if a.get('mm') else 'MISSING'}")
+        self.status.setText(f"vision {self.worker.fps:.0f} fps{mmtxt}")
         self.view.setPixmap(to_pixmap(img).scaled(self.view.size(), Qt.KeepAspectRatio, Qt.FastTransformation))
 
     def closeEvent(self, e):

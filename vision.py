@@ -1,6 +1,7 @@
 import glob, json, os, threading, time
 from concurrent.futures import ThreadPoolExecutor
 import cv2, numpy as np
+import minimap
 from config import TPL_DIR, MOB_DIR, WZ_DIR, LIB_DIR, MAPDB_PATH
 
 
@@ -22,24 +23,6 @@ def bar_fill(frame, roi, kind):
     return 0.0 if len(idx) == 0 else (idx.max() + 1) / c.shape[1]
 
 
-def minimap_world(frame, roi, mm):
-    """Find the player's (yellow) dot inside the minimap box and convert it to WORLD coordinates.
-    The box must cover the minimap PICTURE only. Returns (world_x, world_y, dot_frame_x, dot_frame_y) or None."""
-    x1, y1, x2, y2 = roi
-    c = frame[y1:y2, x1:x2]
-    if c.size == 0:
-        return None
-    hsv = cv2.cvtColor(c, cv2.COLOR_BGR2HSV)
-    m = (hsv[..., 0] >= 18) & (hsv[..., 0] <= 36) & (hsv[..., 1] > 130) & (hsv[..., 2] > 190)
-    ys, xs = np.where(m)
-    if len(xs) < 2:
-        return None
-    dx, dy = float(xs.mean()) + 0.5, float(ys.mean()) + 0.5
-    mag = 2 ** mm["mag"]
-    scale = (x2 - x1) / (mm["width"] / mag)              # displayed px per minimap-canvas px (1.0 when the box is exact)
-    return (dx / scale * mag - mm["centerX"], dy / scale * mag - mm["centerY"], x1 + dx, y1 + dy)
-
-
 def _clean(r):
     return np.nan_to_num(r, nan=0.0, posinf=0.0, neginf=0.0)
 
@@ -51,6 +34,7 @@ class Analyzer:
         self.mob_tpls, self.mob_counts = {}, {}
         self.tracks = []
         self._mapdb = None
+        self._ckey, self.mm_off, self.mm_conf, self._calib_t, self._calib_n = None, (0, 0), 0.0, 0.0, 0
         self.pool = ThreadPoolExecutor(max_workers=min(6, os.cpu_count() or 2))
         self._scan_in, self._scan_out, self._scan_t, self._scan_used = None, [], 0.0, 0.0
         self.scan_ms = 0.0
@@ -65,6 +49,9 @@ class Analyzer:
             except Exception:
                 self._mapdb = {}
         return self._mapdb
+
+    def realign(self):
+        self._ckey = None
 
     def active_ids(self):
         m = self.mapdb().get(self.cfg.current_map)
@@ -273,9 +260,23 @@ class Analyzer:
             dets += self._find_mobs(gray, win, only=t["name"])
         out["mobs"] = self._track(dets, now)
         out["mm"] = None
-        mm = (self.mapdb().get(cfg.current_map) or {}).get("minimap")
-        if cfg.mm_roi and mm and mm.get("mag") is not None:
-            out["mm"] = minimap_world(frame, cfg.mm_roi, mm)
+        m = self.mapdb().get(cfg.current_map)
+        if cfg.mm_roi and m and (m.get("minimap") or {}).get("mag") is not None:
+            x1, y1, x2, y2 = cfg.mm_roi
+            crop = frame[y1:y2, x1:x2]
+            if crop.size:
+                key = (cfg.current_map, tuple(cfg.mm_roi))
+                if key != self._ckey:
+                    self._calib_n = 0
+                if key != self._ckey or (self.mm_conf < 0.25 and self._calib_n < 6 and now - self._calib_t > 2.0):
+                    ox, oy, conf = minimap.align(crop, m)           # snap the picture onto the map data (see minimap.py)
+                    self.mm_off, self.mm_conf = ((ox, oy) if conf >= 0.25 else (0, 0)), conf
+                    self._ckey, self._calib_t, self._calib_n = key, now, self._calib_n + 1
+                dot = minimap.find_dot(crop)
+                if dot:
+                    wx, wy = minimap.world_from_dot(dot, self.mm_off, m)
+                    out["mm"] = (wx, wy, x1 + dot[0], y1 + dot[1])
+        out["mm_conf"] = self.mm_conf
         out["hp"] = bar_fill(frame, cfg.hp_roi, "hp")
         out["mp"] = bar_fill(frame, cfg.mp_roi, "mp")
         return out

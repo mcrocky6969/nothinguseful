@@ -27,7 +27,7 @@ class Config:
     det_extra_h: int = 67
     keys: dict = field(default_factory=lambda: {
         "left": "left", "right": "right", "attack": "ctrl",
-        "skill": "shift", "hp": "pageup", "mp": "pagedown", "jump": "alt", "up": "up", "down": "down"})
+        "skill": "shift", "hp": "pageup", "mp": "pagedown", "jump": "alt", "up": "up", "down": "down", "loot": "z"})
     hp_pct: int = 50                  # press HP key below this %
     mp_pct: int = 30
     hp_roi: list = None               # [x1,y1,x2,y2] in game-frame pixels
@@ -38,6 +38,8 @@ class Config:
     walk_speed: int = 125             # px/s at your speed stat
     jump_h: int = 65                  # tallest step/platform the character can jump up
     jump_dx: int = 110                # widest gap it can jump across
+    loot_on: bool = True              # press the pickup key after a kill (LOOT state)
+    loot_time: float = 1.2
     mob_flip: bool = True             # also match mirrored sprites (left/right facing)
     sprite_scale: float = 1.0         # scale imported wz sprites if your client renders at another size
     track_ttl: float = 0.4            # keep a mob 'alive' this long after its last detection (stops flicker)

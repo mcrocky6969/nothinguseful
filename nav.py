@@ -132,7 +132,7 @@ class NavMap:
     def locate(self, x, y, tol=40):
         best = None
         for p in self.plats:
-            if p.x0 - 12 <= x <= p.x1 + 12:
+            if p.x0 - 18 <= x <= p.x1 + 18:                         # the minimap dot is only +-1 px (16 world px) accurate sideways
                 d = abs(p.y_at(x) - y)
                 if d <= tol and (best is None or d < best[0]):
                     best = (d, p)

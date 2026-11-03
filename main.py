@@ -1,11 +1,11 @@
 import sys, time
-from PySide6.QtCore import QObject, QTimer, Signal
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QTextEdit
+from PySide6.QtCore import QObject, Qt, QTimer, Signal
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QTextEdit, QCheckBox
 from config import Config
 from capture import Capture
 from vision import Analyzer, VisionWorker
 from navigator import Navigator
-from bot import Bot
+from bot import Bot, STATES
 from studio import Studio
 from navwin import NavWindow
 
@@ -33,8 +33,17 @@ class Main(QWidget):
         self.state_lbl, self.act_lbl = QLabel("State: stopped"), QLabel("Doing: -")
         self.log = QTextEdit(); self.log.setReadOnly(True)
         lay = QVBoxLayout(self)
-        for w in (self.game_lbl, self.name_lbl, self.state_lbl, self.act_lbl):
+        for w in (self.game_lbl, self.name_lbl, self.state_lbl):
             lay.addWidget(w)
+        chips = QHBoxLayout()                                   # the bot's finite state machine, live
+        self.chips = {}
+        for st in STATES:
+            l = QLabel(st); l.setAlignment(Qt.AlignCenter); l.setMinimumHeight(30)
+            self.chips[st] = l; chips.addWidget(l)
+        lay.addLayout(chips)
+        lay.addWidget(self.act_lbl)
+        loot = QCheckBox("Loot: press the pickup key (Z) after each kill"); loot.setChecked(self.cfg.loot_on)
+        loot.toggled.connect(lambda x: setattr(self.cfg, "loot_on", x)); lay.addWidget(loot)
         for buttons in ((("Detect Game", self.detect), ("Pixel Studio", self.open_studio), ("Navigation", self.open_nav)),
                         (("START", self.bot.start), ("PAUSE", self.bot.pause), ("STOP", self.bot.stop))):
             row = QHBoxLayout()
@@ -53,7 +62,7 @@ class Main(QWidget):
 
     def open_studio(self):
         if self.studio is None:
-            self.studio = Studio(self.cfg, self.worker, self.an)
+            self.studio = Studio(self.cfg, self.worker, self.an, self.nav)
         self.studio.resize(1200, 760); self.studio.show(); self.studio.raise_()
 
     def open_nav(self):
@@ -72,6 +81,11 @@ class Main(QWidget):
             self.name_lbl.setText(f"<span style='color:{'#3c3' if ok else '#e44'}'><b>Name tracking: {'FOUND' if ok else 'LOST'}</b></span> score {a['name_score']:.2f}"
                                   f"   |   minimap dot: {'found' if a.get('mm') else '-'}")
         self.state_lbl.setText(f"State: {self.bot.state}   vision: {self.worker.fps:.0f} fps")
+        running = self.bot.state == "running"
+        for st, l in self.chips.items():
+            on = st == self.bot.fsm and (running or st == "IDLE")
+            l.setStyleSheet("background:%s;color:%s;border:1px solid #555;border-radius:4px;font-weight:%s" %
+                            (("#2e7d32" if st != "IDLE" else "#555") if on else "#222", "#fff" if on else "#777", "bold" if on else "normal"))
         self.act_lbl.setText(f"Doing: {self.bot.status}")
 
     def closeEvent(self, e):
